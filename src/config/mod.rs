@@ -22,7 +22,10 @@ impl TryFrom<Pkcs12> for reqwest::Identity {
 
     fn try_from(pkcs12: Pkcs12) -> Result<Self, Self::Error> {
         match pkcs12 {
-            Pkcs12::File { path, password } => Ok(Identity::from_pkcs12_file(path.as_str(), password.as_str())?),
+            Pkcs12::File { path, password } => Ok(Identity::from_pkcs12_file(
+                path.as_str(),
+                password.as_str(),
+            )?),
             Pkcs12::Der { der, password } => Ok(Identity::from_vec(der, password.as_str())?),
         }
     }
@@ -82,3 +85,5 @@ pub const API_URL_PROD: &str = "https://appapi2.bankid.com/rp/v5.1";
 pub const CA_TEST: &str = include_str!("../../resources/test.ca");
 #[allow(dead_code)]
 pub const CA_PROD: &str = include_str!("../../resources/production.ca");
+#[allow(dead_code)]
+pub const P12_TEST: &[u8] = include_bytes!("../../resources/testcert.p12");

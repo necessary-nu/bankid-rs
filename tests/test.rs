@@ -1,17 +1,17 @@
-#[cfg(feature = "__sync")]
+#[cfg(feature = "sync")]
 pub use test as maybe_async_test;
 
 use maybe_async::maybe_async;
 use rand::Rng;
-#[cfg(feature = "__async")]
+#[cfg(feature = "async")]
 pub use tokio::test as maybe_async_test;
 
+use bankid::config::CA_TEST;
 use bankid::{
     client::BankID,
     config::{ConfigBuilder, Pkcs12},
     model::{AuthenticatePayloadBuilder, CancelPayload, CollectPayload},
 };
-use bankid::config::{CA_TEST};
 
 #[maybe_async]
 #[maybe_async_test]
@@ -44,7 +44,10 @@ async fn test_collect() {
 
     let authenticate = bank_id.authenticate(payload).await.unwrap();
 
-    bank_id.collect(CollectPayload { order_ref: authenticate.order_ref })
+    bank_id
+        .collect(CollectPayload {
+            order_ref: authenticate.order_ref,
+        })
         .await
         .unwrap();
 }
@@ -62,7 +65,10 @@ async fn test_cancel() {
 
     let authenticate = bank_id.authenticate(payload).await.unwrap();
 
-    bank_id.cancel(CancelPayload { order_ref: authenticate.order_ref })
+    bank_id
+        .cancel(CancelPayload {
+            order_ref: authenticate.order_ref,
+        })
         .await
         .unwrap();
 }
@@ -77,7 +83,8 @@ fn client() -> BankID {
         .pkcs12(pkcs12)
         .url("https://appapi2.test.bankid.com/rp/v5.1".to_string())
         .ca(CA_TEST.to_string())
-        .build().unwrap();
+        .build()
+        .unwrap();
 
     BankID::new(config)
 }

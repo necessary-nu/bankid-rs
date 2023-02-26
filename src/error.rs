@@ -14,7 +14,11 @@ impl std::error::Error for ApiError {}
 
 impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "(errorCode: {}, details: {})", self.error_code, self.details)
+        write!(
+            f,
+            "(errorCode: {}, details: {})",
+            self.error_code, self.details
+        )
     }
 }
 
@@ -60,7 +64,7 @@ pub enum Error {
 }
 
 impl Error {
-    #[cfg(feature = "__async")]
+    #[cfg(feature = "async")]
     pub async fn from_response(response: reqwest::Response) -> Self {
         match response.status() {
             // StatusCode::BAD_REQUEST => Self::BadRequest,
@@ -76,7 +80,7 @@ impl Error {
         }
     }
 
-    #[cfg(feature = "__sync")]
+    #[cfg(feature = "sync")]
     pub fn from_response(response: reqwest::blocking::Response) -> Self {
         match response.status() {
             // StatusCode::BAD_REQUEST => Self::BadRequest,
@@ -100,6 +104,9 @@ impl From<reqwest::Error> for Error {
 
 impl From<reqwest::StatusCode> for Error {
     fn from(code: reqwest::StatusCode) -> Self {
-        Self::StatusCode(code.as_u16(), code.canonical_reason().unwrap_or("unknown").to_string())
+        Self::StatusCode(
+            code.as_u16(),
+            code.canonical_reason().unwrap_or("unknown").to_string(),
+        )
     }
 }

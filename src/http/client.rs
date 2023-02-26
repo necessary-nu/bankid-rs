@@ -16,9 +16,9 @@ use super::HttpClient;
 
 #[derive(Clone, Debug)]
 pub struct Client {
-    #[cfg(feature = "__async")]
+    #[cfg(feature = "async")]
     inner: reqwest::Client,
-    #[cfg(feature = "__sync")]
+    #[cfg(feature = "sync")]
     inner: reqwest::blocking::Client,
     config: Config,
 }
@@ -70,7 +70,8 @@ impl HttpClient for Client {
 
     #[inline]
     fn post(&self, url: &str, payload: &Value) -> Result<String> {
-        let mut request: reqwest::blocking::RequestBuilder = self.inner.request(Method::POST, &self.endpoint_url(url));
+        let mut request: reqwest::blocking::RequestBuilder =
+            self.inner.request(Method::POST, &self.endpoint_url(url));
 
         request = request.json(payload);
 

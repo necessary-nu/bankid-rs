@@ -13,6 +13,7 @@ use crate::{
         cancel::{Cancel, CancelPayload},
         collect::{Collect, CollectPayload},
         sign::{Sign, SignPayload},
+        Status,
     },
 };
 
@@ -22,7 +23,7 @@ use crate::{
 /// using [`Client::new`]
 #[derive(Builder, Clone, Debug)]
 pub struct BankID {
-    pub(in crate) client: Box<dyn http::HttpClient>,
+    pub(crate) client: Box<dyn http::HttpClient>,
 }
 
 impl BankID {
@@ -33,8 +34,8 @@ impl BankID {
     /// Refer to the [`reqwest::ClientBuilder::build`] docs for information
     /// on situations where this might fail.
     pub fn new(config: Config) -> Self {
-        let client =
-            http::client::Client::try_from(config).expect("Could not create a client from the supplied config");
+        let client = http::client::Client::try_from(config)
+            .expect("Could not create a client from the supplied config");
 
         Self {
             client: Box::new(client),
@@ -69,6 +70,20 @@ impl BankID {
     pub async fn collect(&self, payload: CollectPayload) -> Result<Collect> {
         let result = self.client.post("/collect", &json!(payload)).await?;
         self.convert_result(&result)
+    }
+
+    #[maybe_async]
+    /// Will repeatedly poll the collect endpoint until the status is either completed or failed.
+    pub async fn wait_collect(&self, payload: CollectPayload) -> Result<Collect> {
+        loop {
+            let result = self.client.post("/collect", &json!(payload)).await?;
+            let collect: Collect = self.convert_result(&result)?;
+            if collect.status == Status::Pending {
+                tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+            } else {
+                return Ok(collect);
+            }
+        }
     }
 
     /// Cancel - Cancels an ongoing sign or auth order.

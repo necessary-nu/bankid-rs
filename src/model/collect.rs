@@ -13,11 +13,19 @@ pub struct Collect {
     /// pending - The order is being processed. hintCode describes the status of the order.
     /// failed - Something went wrong with the order. hintCode describes the error.
     /// complete - The order is complete. completionData holds user information.
-    pub status: String,
+    pub status: Status,
     /// Describes the status of the order.
     pub hint_code: String,
     /// Only present for complete orders.
     pub completion_data: Option<CompletionData>,
+}
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum Status {
+    Pending,
+    Failed,
+    Complete,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Builder)]
@@ -64,7 +72,7 @@ pub struct Device {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Builder)]
 #[serde(rename_all = "camelCase")]
 pub struct Cert {
-    ///  Start of validity of the users BankID
+    /// Start of validity of the users BankID
     not_before: String,
     /// End of validity of the Users BankID
     not_after: String,
