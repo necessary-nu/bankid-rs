@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use derive_builder::Builder;
 use maybe_async::maybe_async;
 use serde::Deserialize;
@@ -23,7 +25,7 @@ use crate::{
 /// using [`Client::new`]
 #[derive(Builder, Clone, Debug)]
 pub struct BankID {
-    pub(crate) client: Box<dyn http::HttpClient>,
+    pub(crate) client: Arc<dyn http::HttpClient + Send + Sync>,
 }
 
 impl BankID {
@@ -38,7 +40,7 @@ impl BankID {
             .expect("Could not create a client from the supplied config");
 
         Self {
-            client: Box::new(client),
+            client: Arc::new(client),
         }
     }
 
