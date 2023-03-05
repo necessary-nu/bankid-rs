@@ -1,6 +1,5 @@
 //! All BankID API endpoint request and response object
 
-use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 pub use authenticate::*;
@@ -20,23 +19,17 @@ pub mod sign;
 /// consider setting the requirement tokenStartRequired to true. By this, the
 /// system enforces that no other device than the one started using the QR code
 /// or autostarttoken is used.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Builder, Default)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Default)]
 #[serde(rename_all = "camelCase")]
-#[builder(setter(strip_option))]
 pub struct Requirement {
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default = "Option::None")]
     pub card_reader: Option<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    #[builder(default = "vec!()")]
     pub certificate_policies: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default = "Option::None")]
     pub issuer_cn: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default = "Option::None")]
     pub auto_start_token_required: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default = "Option::None")]
     pub allow_fingerprint: Option<bool>,
 }

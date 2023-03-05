@@ -2,7 +2,7 @@
 name = "bankid"
 version = "0.1.0"
 authors = ["Nicklas Wallgren <nicklas.wallgren@gmail.com>"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 readme = "README.md"
 description = "BankID API SDK"
@@ -13,8 +13,6 @@ keywords = ["bankid","api", "sdk"]
 [dependencies]
 async-trait = { version = "0.1.50", optional = true }
 base64 = "0.13.0"
-derive_builder = "0.10.2"
-maybe-async = "0.2.6"
 reqwest = { version = "0.11.3", default-features = false, features = ["json", "socks", "blocking"] }
 tokio = { version = "1.7", features = ["full"] }
 serde = { version = "1.0.126", features = ["derive"] }
@@ -24,7 +22,6 @@ url = "2.2.2"
 pem = "0.8.3"
 openssl = { version = "0.10.35", optional = true }
 webpki-roots =  "0.22"
-dyn-clone = "1.0.4"
 
 [dev-dependencies]
 env_logger = "0.8.3"
@@ -32,16 +29,6 @@ futures = "0.3.5"
 rand = "0.8.3"
 
 [features]
-default = ["async", "native-tls"]
-async = ["async-trait"]
-sync = ["maybe-async/is_sync"]
+default = ["native-tls"]
 native-tls = ["reqwest/native-tls"]
 # rustls-tls = ["reqwest/rustls-tls"]
-
-[[example]]
-name = "authenticate"
-path = "examples/authenticate.rs"
-
-[[example]]
-name = "sign"
-path = "examples/sign.rs"

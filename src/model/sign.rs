@@ -1,4 +1,3 @@
-use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::model::Requirement;
@@ -16,9 +15,8 @@ pub struct Sign {
     pub qr_start_secret: String,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Builder)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-#[builder(setter(strip_option))]
 pub struct SignPayload {
     /// The personal number of the user. String. 12 digits. Century must be included.
     /// If the personal number is excluded, the client must be started with the
@@ -39,17 +37,14 @@ pub struct SignPayload {
     /// Data not displayed to the user. String. The value must be base 64-encoded. 1-200
     /// 000 characters after base 64-encoding.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default = "Option::None")]
     pub user_non_visible_data: Option<String>,
     /// If present, and set to “simpleMarkdownV1”, this parameter indicates that
     /// userVisibleData holds formatting characters which, if used correctly, will make
     /// the text displayed with the user nicer to look at. For further information of
     /// formatting options, please study the document Guidelines for Formatted Text.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default = "Option::None")]
     pub user_visible_data_format: Option<UserVisibleDataFormat>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default = "Option::None")]
     pub requirement: Option<Requirement>,
 }
 

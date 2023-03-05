@@ -42,6 +42,5 @@
 pub mod client;
 pub mod config;
 pub mod error;
-mod http;
 pub mod model;
 mod tls;

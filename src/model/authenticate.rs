@@ -1,24 +1,33 @@
-use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::model::Requirement;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
-pub struct Authenticate {
-    /// Used to compile the start url
-    pub auto_start_token: String,
-    /// Used to collect the status of the order
-    pub order_ref: String,
-    /// Used to compute the animated QR code
-    pub qr_start_token: String,
-    /// Used to compute the animated QR code
-    pub qr_start_secret: String,
+#[serde(untagged, rename_all = "camelCase")]
+pub enum Authenticate {
+    Success {
+        /// Used to compile the start url
+        #[serde(rename = "autoStartToken")]
+        auto_start_token: String,
+        /// Used to collect the status of the order
+        #[serde(rename = "orderRef")]
+        order_ref: String,
+        /// Used to compute the animated QR code
+        #[serde(rename = "qrStartToken")]
+        qr_start_token: String,
+        /// Used to compute the animated QR code
+        #[serde(rename = "qrStartSecret")]
+        qr_start_secret: String,
+    },
+    Error {
+        #[serde(rename = "errorCode")]
+        error_code: String,
+        details: String,
+    },
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Builder)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-#[builder(setter(strip_option))]
 pub struct AuthenticatePayload {
     /// The personal number of the user. String. 12 digits. Century must be included.
     /// If the personal number is excluded, the client must be started with the
@@ -34,6 +43,5 @@ pub struct AuthenticatePayload {
     pub end_user_ip: String,
     /// Requirements on how the auth or sign order must be performed
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default = "Option::None")]
     pub requirement: Option<Requirement>,
 }

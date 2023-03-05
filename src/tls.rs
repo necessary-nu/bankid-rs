@@ -1,64 +1,48 @@
 use std::{fs::File, io::Read};
 
-use crate::error::{Error, Result};
+use crate::error::Result;
 
-pub struct Identity {}
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("IO error")]
+    Io(#[from] std::io::Error),
 
-impl Identity {
-    pub fn from_pkcs12_file(path: &str, password: &str) -> Result<reqwest::Identity> {
-        let mut buf = Vec::new();
-
-        let mut file = File::open(path).map_err(|source| Error::ReadError { source })?;
-
-        file.read_to_end(&mut buf)
-            .map_err(|source| Error::ReadError { source })?;
-
-        match reqwest::Identity::from_pkcs12_der(&buf, password) {
-            Ok(identify) => Ok(identify),
-            Err(error) => Err(Error::Pkcs12Error { source: error }),
-        }
-    }
-
-    pub fn from_vec(der: Vec<u8>, password: &str) -> Result<reqwest::Identity> {
-        match reqwest::Identity::from_pkcs12_der(&der, password) {
-            Ok(identify) => Ok(identify),
-            Err(error) => Err(Error::Pkcs12Error { source: error }),
-        }
-    }
+    #[error("Reqwest error")]
+    Reqwest(#[from] reqwest::Error),
 }
 
-pub struct Certificate {}
+pub struct Certificate;
 
 impl Certificate {
     #[allow(dead_code)]
-    pub fn from_file(path: &str) -> Result<Vec<reqwest::Certificate>> {
+    pub fn from_file(path: &str) -> Result<Vec<reqwest::Certificate>, Error> {
         let mut buf = Vec::new();
 
-        let mut file = File::open(path).map_err(|source| Error::ReadError { source })?;
+        let mut file = File::open(path)?;
 
-        file.read_to_end(&mut buf)
-            .map_err(|source| Error::ReadError { source })?;
+        file.read_to_end(&mut buf)?;
 
         let pems = pem::parse_many(&buf);
 
         pems.into_iter()
             .map(|pem| {
-                reqwest::Certificate::from_pem(&pem::encode(&pem).into_bytes())
-                    .map_err(|source| Error::CertificateError { source })
+                Ok(reqwest::Certificate::from_pem(
+                    &pem::encode(&pem).into_bytes(),
+                )?)
             })
-            .collect::<Result<Vec<_>>>()
+            .collect::<Result<Vec<_>, Error>>()
     }
 
-    #[allow(dead_code)]
-    pub fn from_string(subject: &str) -> Result<Vec<reqwest::Certificate>> {
+    pub fn from_string(subject: &str) -> Result<Vec<reqwest::Certificate>, Error> {
         let buf: Vec<u8> = subject.into();
         let pems = pem::parse_many(&buf);
 
         pems.into_iter()
             .map(|pem| {
-                reqwest::Certificate::from_pem(&pem::encode(&pem).into_bytes())
-                    .map_err(|source| Error::CertificateError { source })
+                Ok(reqwest::Certificate::from_pem(
+                    &pem::encode(&pem).into_bytes(),
+                )?)
             })
-            .collect::<Result<Vec<_>>>()
+            .collect::<Result<Vec<_>, _>>()
     }
 }
