@@ -6,11 +6,10 @@ use crate::{
     config::Config,
     error::Result,
     model::{
-        authenticate::{Authenticate, AuthenticatePayload},
-        cancel::{Cancel, CancelPayload},
-        collect::{CollectError, CollectPayload, CollectValue},
-        sign::{Sign, SignPayload},
-        Collect,
+        authenticate::{AuthenticatePayload, AuthenticateResponse},
+        cancel::{CancelPayload, CancelResponse},
+        collect::{CollectError, CollectPayload, CollectResponse, CollectValue},
+        sign::{SignPayload, SignResponse},
     },
     tls::Certificate,
 };
@@ -82,7 +81,10 @@ impl BankID {
     ///
     /// Use the collect method to query the status of the order.
     /// If the request is successful, the orderRef and autoStartToken is returned.
-    pub async fn authenticate(&self, payload: AuthenticatePayload) -> Result<Authenticate, Error> {
+    pub async fn authenticate(
+        &self,
+        payload: AuthenticatePayload,
+    ) -> Result<AuthenticateResponse, Error> {
         self.send_payload("/auth", payload).await
     }
 
@@ -90,7 +92,7 @@ impl BankID {
     ///
     /// Use the collect method to query the status of the order.
     /// If the request is successful, the orderRef and autoStartToken is returned.
-    pub async fn sign(&self, payload: SignPayload) -> Result<Sign, Error> {
+    pub async fn sign(&self, payload: SignPayload) -> Result<SignResponse, Error> {
         self.send_payload("/sign", payload).await
     }
 
@@ -98,7 +100,7 @@ impl BankID {
     ///
     /// RP should keep calling collect every two seconds as long as status indicates pending.
     /// RP must abort if status indicates failed. The user identity is returned when complete.
-    pub async fn collect(&self, payload: CollectPayload) -> Result<Collect, Error> {
+    pub async fn collect(&self, payload: CollectPayload) -> Result<CollectResponse, Error> {
         let result = self
             .client
             .post(format!("{}/collect", &self.base_url))
@@ -121,7 +123,7 @@ impl BankID {
     /// Cancel - Cancels an ongoing sign or auth order.
     ///
     /// This is typically used if the user cancels the order in your service or app.
-    pub async fn cancel(&self, payload: CancelPayload) -> Result<Cancel, Error> {
+    pub async fn cancel(&self, payload: CancelPayload) -> Result<CancelResponse, Error> {
         self.send_payload("/cancel", payload).await
     }
 }

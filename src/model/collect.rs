@@ -41,7 +41,7 @@ pub(crate) struct CollectError {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub enum Collect {
+pub enum CollectResponse {
     Pending {
         /// The orderRef in question.
         order_ref: String,
@@ -66,27 +66,27 @@ pub enum Collect {
     },
 }
 
-impl From<CollectValue> for Collect {
+impl From<CollectValue> for CollectResponse {
     fn from(value: CollectValue) -> Self {
         match value {
             CollectValue::Pending {
                 order_ref,
                 hint_code,
-            } => Collect::Pending {
+            } => CollectResponse::Pending {
                 order_ref,
                 hint_code,
             },
             CollectValue::Failed {
                 order_ref,
                 hint_code,
-            } => Collect::Failed {
+            } => CollectResponse::Failed {
                 order_ref,
                 hint_code,
             },
             CollectValue::Complete {
                 order_ref,
                 completion_data,
-            } => Collect::Complete {
+            } => CollectResponse::Complete {
                 order_ref,
                 completion_data,
             },
@@ -94,9 +94,9 @@ impl From<CollectValue> for Collect {
     }
 }
 
-impl From<CollectError> for Collect {
+impl From<CollectError> for CollectResponse {
     fn from(value: CollectError) -> Self {
-        Collect::Error {
+        CollectResponse::Error {
             error_code: value.error_code,
             details: value.details,
         }

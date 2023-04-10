@@ -4,7 +4,7 @@ use crate::model::Requirement;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(untagged, rename_all = "camelCase")]
-pub enum Authenticate {
+pub enum AuthenticateResponse {
     Success {
         /// Used to compile the start url
         #[serde(rename = "autoStartToken")]
