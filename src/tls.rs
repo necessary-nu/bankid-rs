@@ -9,6 +9,9 @@ pub enum Error {
 
     #[error("Reqwest error")]
     Reqwest(#[from] reqwest::Error),
+
+    #[error("PEM error")]
+    Pem(#[from] pem::PemError),
 }
 
 pub struct Certificate;
@@ -22,7 +25,7 @@ impl Certificate {
 
         file.read_to_end(&mut buf)?;
 
-        let pems = pem::parse_many(&buf);
+        let pems = pem::parse_many(&buf)?;
 
         pems.into_iter()
             .map(|pem| {
@@ -35,7 +38,7 @@ impl Certificate {
 
     pub fn from_string(subject: &str) -> Result<Vec<reqwest::Certificate>, Error> {
         let buf: Vec<u8> = subject.into();
-        let pems = pem::parse_many(&buf);
+        let pems = pem::parse_many(&buf)?;
 
         pems.into_iter()
             .map(|pem| {
