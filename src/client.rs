@@ -11,7 +11,6 @@ use crate::{
         collect::{CollectError, CollectPayload, CollectResponse, CollectValue},
         sign::{SignPayload, SignResponse},
     },
-    tls::Certificate,
 };
 
 /// Client for communicating with the BankID API.
@@ -33,6 +32,15 @@ pub enum Error {
     Http(#[from] reqwest::Error),
 }
 
+#[derive(Debug, thiserror::Error)]
+pub enum InitError {
+    #[error("PEM error: {0}")]
+    Pem(#[from] pem::PemError),
+
+    #[error("Reqwest error: {0}")]
+    Reqwest(#[from] reqwest::Error),
+}
+
 impl BankID {
     /// Create and initialize a [`BankID`] using the given configuration.
     ///
@@ -40,8 +48,17 @@ impl BankID {
     /// Panics if the configuration supplied leads to an invalid [`HttpClient`].
     /// Refer to the [`reqwest::ClientBuilder::build`] docs for information
     /// on situations where this might fail.
-    pub fn new(config: Config) -> Result<Self, reqwest::Error> {
-        let certificates = Certificate::from_string(config.ca).unwrap(); // TODO
+    pub fn new(config: Config) -> Result<Self, InitError> {
+        let pems = pem::parse_many(config.ca)?;
+
+        let certificates = pems
+            .into_iter()
+            .map(|pem| {
+                // This is infallible with rustls
+                reqwest::Certificate::from_pem(&pem::encode(&pem).into_bytes())
+                    .expect("invalid PEM")
+            })
+            .collect::<Vec<_>>();
 
         let mut builder: reqwest::ClientBuilder = reqwest::Client::builder();
         builder = builder.identity(config.identity);
@@ -109,9 +126,8 @@ impl BankID {
             .await?;
         let text = result.text().await?;
 
-        match serde_json::from_str::<CollectError>(&text) {
-            Ok(v) => return Ok(v.into()),
-            Err(_) => {}
+        if let Ok(v) = serde_json::from_str::<CollectError>(&text) {
+            return Ok(v.into());
         }
 
         match serde_json::from_str::<CollectValue>(&text) {

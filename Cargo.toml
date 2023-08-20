@@ -1,34 +1,26 @@
 [package]
 name = "bankid"
-version = "0.1.0"
-authors = ["Nicklas Wallgren <nicklas.wallgren@gmail.com>"]
+version = "0.2.0"
+authors = ["Brendan Molloy <brendan@necessary.nu>"]
 edition = "2021"
 license = "MIT"
 readme = "README.md"
 description = "BankID API SDK"
-homepage = "https://github.com/NicklasWallgren/bankid-rs"
-repository = "https://github.com/NicklasWallgren/bankid-rs"
-keywords = ["bankid","api", "sdk"]
+homepage = "https://github.com/necessary-nu/bankid-rs"
+repository = "https://github.com/necessary-nu/bankid-rs"
+keywords = ["bankid", "api", "sdk"]
 
 [dependencies]
-async-trait = { version = "0.1.68", optional = true }
 base64 = "0.21.0"
-reqwest = { version = "0.11.16", default-features = false, features = ["json", "socks", "blocking"] }
-tokio = { version = "1.27.0", features = ["full"] }
+reqwest = { version = "0.11.16", default-features = false, features = ["json", "socks", "rustls-tls", "rustls-tls-webpki-roots"] }
+tokio = { version = "1.27.0" }
 serde = { version = "1.0.159", features = ["derive"] }
 serde_json = "1.0.95"
 thiserror = "1.0.40"
 url = "2.3.1"
-pem = "2.0.1"
-openssl = { version = "0.10.50", optional = true }
-webpki-roots = "0.23.0"
+pem = "3.0.1"
 
 [dev-dependencies]
 env_logger = "0.10.0"
 futures = "0.3.28"
 rand = "0.8.5"
-
-[features]
-default = ["native-tls"]
-native-tls = ["reqwest/native-tls"]
-# rustls-tls = ["reqwest/rustls-tls"]
