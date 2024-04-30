@@ -29,10 +29,6 @@ pub enum AuthenticateResponse {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthenticatePayload {
-    /// The personal number of the user. String. 12 digits. Century must be included.
-    /// If the personal number is excluded, the client must be started with the
-    /// autoStartToken returned in the response
-    pub personal_number: Option<String>,
     /// The user IP address as seen by RP. String. IPv4 and IPv6 is allowed.
     /// Note the importance of using the correct IP address. It must be the IP address
     /// representing the user agent (the end user device) as seen by the RP. If there is a
