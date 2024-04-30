@@ -125,8 +125,8 @@ pub struct CompletionData {
     pub user: User,
     /// Information related to the device.
     pub device: Device,
-    /// Information related to the user’s certificate.
-    pub cert: Cert,
+    /// The date the BankID was issued.
+    pub bank_id_issue_date: String,
     /// The signature. Base64-encoded
     pub signature: String,
     pub ocsp_response: String,
@@ -150,6 +150,8 @@ pub struct User {
 pub struct Device {
     /// The IP address of the user agent as the BankID server discovers it
     pub ip_address: String,
+    /// The unique hardware identifier of the user agent
+    pub uhi: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
